@@ -1,0 +1,76 @@
+<div class="container mt-4" style="max-width: 500px;">
+  <div class="card shadow border-0">
+    <div class="card-body p-4">
+      <h4 class="text-primary mb-4 fw-bold text-center">
+        <i class="bi bi-arrow-left-right me-2"></i>Registrar Movimiento
+      </h4>
+      
+      <form (ngSubmit)="save()" #movementForm="ngForm">
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">Tipo de Operación</label>
+          <select class="form-select" [ngModel]="movement().type" (ngModelChange)="updateField('type', $event)" name="type">
+            <option value="Entrada">Entrada (Abastecer Almacén)</option>
+            <option value="Salida">Salida (Mover a otro Almacén)</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">Producto</label>
+          <select class="form-select" [ngModel]="movement().productId" (ngModelChange)="updateField('productId', $event)" name="productId" required #prod="ngModel">
+            <option value="0" disabled>Seleccione un producto...</option>
+            @for (p of products(); track p.id) {
+              <option [value]="p.id">{{ p.name }} ({{ p.code }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">
+            {{ movement().type === 'Entrada' ? 'Almacén Receptor' : 'Desde Almacén (Origen)' }}
+          </label>
+          <select class="form-select" [ngModel]="movement().warehouseId" (ngModelChange)="updateField('warehouseId', $event)" name="warehouseId" required #wh="ngModel">
+            <option value="0" disabled>Seleccione un almacén...</option>
+            @for (w of warehouses(); track w.id) {
+              <option [value]="w.id">{{ w.name }}</option>
+            }
+          </select>
+        </div>
+
+        @if (movement().type === 'Salida') {
+          <div class="mb-3 p-3 bg-light rounded border">
+            <label class="form-label fw-bold small text-danger">Hacia Almacén (Destino)</label>
+            <select class="form-select" [ngModel]="movement().destinationWarehouseId" (ngModelChange)="updateField('destinationWarehouseId', $event)" name="destId">
+              <option value="0" disabled>Seleccione destino...</option>
+              @for (w of warehouses(); track w.id) {
+                <option [value]="w.id">{{ w.name }}</option>
+              }
+            </select>
+            @if (isSameWarehouse()) {
+              <div class="text-danger small mt-1 fw-bold">
+                <i class="bi bi-exclamation-circle me-1"></i>No puedes mover al mismo almacén.
+              </div>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-muted">Cantidad</label>
+          <input type="number" class="form-control" 
+                 [class.is-invalid]="isInvalidStock() || movement().quantity <= 0"
+                 [ngModel]="movement().quantity" 
+                 (ngModelChange)="updateField('quantity', $event)" 
+                 name="quantity" min="1">
+          @if (isInvalidStock()) {
+            <div class="invalid-feedback fw-bold">Stock insuficiente en el almacén de origen.</div>
+          }
+        </div>
+
+        <button type="submit" 
+                class="btn btn-primary w-100 mt-3 py-2 fw-bold shadow-sm" 
+                [disabled]="isInvalidStock() || isSameWarehouse() || movement().productId === 0 || movement().warehouseId === 0 || (movement().type === 'Salida' && movement().destinationWarehouseId === 0)">
+          <i class="bi bi-check-circle me-2"></i>Confirmar Registro
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

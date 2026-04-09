@@ -1,0 +1,16 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/dashboard">
+      <i class="bi bi-box-seam me-2"></i>Inventory Manager
+    </a>
+    <div class="navbar-nav">
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a class="nav-link" routerLink="/movimientos" routerLinkActive="active">Movimientos</a>
+      <a class="nav-link" routerLink="/catalogos" routerLinkActive="active">Catálogos</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
